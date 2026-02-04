@@ -1,4 +1,4 @@
-package com.shotaroi.featureflag;
+package com.shotaroi.featureflags;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
