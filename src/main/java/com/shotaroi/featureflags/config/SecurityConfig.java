@@ -49,9 +49,9 @@ public class SecurityConfig {
                 .build();
     }
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        // BCrypt is the standard safe hashing algorithm for passwords
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    PasswordEncoder passwordEncoder() {
+//        // BCrypt is the standard safe hashing algorithm for passwords
+//        return new BCryptPasswordEncoder();
+//    }
 }
