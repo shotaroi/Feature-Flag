@@ -33,8 +33,7 @@ public class SecurityConfig {
                         .requestMatchers("/h2-console/**").permitAll()
 
                         // Admin endpoints require role ADMIN
-//                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                                .requestMatchers("/api/admin/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
 
                         // Everything else requires authentication
