@@ -13,6 +13,11 @@ spring:
   h2:
     console:
       enabled: true
+  security:
+    user:
+      name: admin
+      password: admin123
+      roles: ADMIN
 
 server:
   port: 8080
