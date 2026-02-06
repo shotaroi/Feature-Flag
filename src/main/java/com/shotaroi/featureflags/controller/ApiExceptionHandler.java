@@ -28,6 +28,12 @@ public class ApiExceptionHandler {
         return ErrorResponse.of(400, "BAD_JSON", "Malformed JSON or wrong field types");
     }
 
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse notFound(Exception e) {
+        return ErrorResponse.of(404, "NOT_FOUND", e.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse fallback(Exception e) {
