@@ -24,6 +24,17 @@ public class FeatureAdminController {
         this.targetRepo = targetRepo;
     }
 
+    @GetMapping("/{featureKey}")
+    public FeatureFlag get(@PathVariable String featureKey) {
+        return flagRepo.findByFeatureKey(featureKey)
+                .orElseThrow(() -> new IllegalArgumentException("Not found: " + featureKey));
+    }
+
+    @GetMapping
+    public java.util.List<FeatureFlag> list() {
+        return flagRepo.findAll();
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public FeatureFlag create(@Valid @RequestBody AdminDtos.CreateFlagRequest req) {
@@ -64,5 +75,12 @@ public class FeatureAdminController {
         target.setFeatureFlag(flag);
         target.setUserId(req.userId());
         targetRepo.save(target);
+    }
+
+    @DeleteMapping("/{featureKey}/targets/{userId}")
+    public void removeTarget(@PathVariable String featureKey, @PathVariable String userId) {
+        FeatureFlag flag = flagRepo.findByFeatureKey(featureKey)
+                .orElseThrow(() -> new IllegalArgumentException("Not found: " + featureKey));
+        targetRepo.deleteByFeatureFlag_IdAndUserId(flag.getId(), userId);
     }
 }
