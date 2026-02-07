@@ -5,48 +5,37 @@ import com.shotaroi.featureflags.domain.FeatureTarget;
 import com.shotaroi.featureflags.dto.AdminDtos;
 import com.shotaroi.featureflags.repository.FeatureFlagRepository;
 import com.shotaroi.featureflags.repository.FeatureTargetRepository;
+import com.shotaroi.featureflags.service.FeatureAdminService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/flags")
 public class FeatureAdminController {
-
-    private final FeatureFlagRepository flagRepo;
-    private final FeatureTargetRepository targetRepo;
+    private final FeatureAdminService adminService;
 
     public FeatureAdminController(
-            FeatureFlagRepository flagRepo,
-            FeatureTargetRepository targetRepo
+            FeatureAdminService adminService
     ) {
-        this.flagRepo = flagRepo;
-        this.targetRepo = targetRepo;
+        this.adminService = adminService;
     }
 
     @GetMapping("/{featureKey}")
     public FeatureFlag get(@PathVariable String featureKey) {
-        return flagRepo.findByFeatureKey(featureKey)
-                .orElseThrow(() -> new IllegalArgumentException("Not found: " + featureKey));
+        return adminService.get(featureKey);
     }
 
     @GetMapping
     public java.util.List<FeatureFlag> list() {
-        return flagRepo.findAll();
+        return adminService.list();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public FeatureFlag create(@Valid @RequestBody AdminDtos.CreateFlagRequest req) {
-        if (flagRepo.findByFeatureKey(req.featureKey()).isPresent()) {
-            throw new IllegalArgumentException("Feature already exists");
-        }
-
-        FeatureFlag flag = new FeatureFlag();
-        flag.setFeatureKey(req.featureKey());
-        flag.setEnabled(req.enabled());
-        flag.setRolloutPercent(req.rolloutPercent());
-        return flagRepo.save(flag);
+        return adminService.create(req);
     }
 
     @PatchMapping("/{featureKey}")
@@ -54,12 +43,7 @@ public class FeatureAdminController {
             @PathVariable String featureKey,
             @Valid @RequestBody AdminDtos.UpdateFlagRequest req
     ) {
-        FeatureFlag flag = flagRepo.findByFeatureKey(featureKey)
-                .orElseThrow(() -> new IllegalArgumentException("Not found"));
-
-        flag.setEnabled(req.enabled());
-        flag.setRolloutPercent(req.rolloutPercent());
-        return flagRepo.save(flag);
+        return adminService.update(featureKey, req);
     }
 
     @PostMapping("/{featureKey}/targets")
@@ -68,19 +52,12 @@ public class FeatureAdminController {
             @PathVariable String featureKey,
             @Valid @RequestBody AdminDtos.AddTargetRequest req
     ) {
-        FeatureFlag flag = flagRepo.findByFeatureKey(featureKey)
-                .orElseThrow(() -> new IllegalArgumentException("Not found"));
-
-        FeatureTarget target = new FeatureTarget();
-        target.setFeatureFlag(flag);
-        target.setUserId(req.userId());
-        targetRepo.save(target);
+        adminService.addTarget(featureKey, req.userId());
     }
 
     @DeleteMapping("/{featureKey}/targets/{userId}")
+    @Transactional
     public void removeTarget(@PathVariable String featureKey, @PathVariable String userId) {
-        FeatureFlag flag = flagRepo.findByFeatureKey(featureKey)
-                .orElseThrow(() -> new IllegalArgumentException("Not found: " + featureKey));
-        targetRepo.deleteByFeatureFlag_IdAndUserId(flag.getId(), userId);
+        adminService.removeTarget(featureKey, userId);
     }
 }
