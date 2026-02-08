@@ -44,6 +44,9 @@ public class FeatureFlag {
     }
 
     public Long getId() { return id; }
+
+    public void setId(Long id) { this.id = id; }
+
     public String getFeatureKey() { return featureKey; }
     public void setFeatureKey(String featureKey) { this.featureKey = featureKey; }
     public boolean isEnabled() { return enabled; }
