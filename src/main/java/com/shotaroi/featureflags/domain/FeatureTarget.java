@@ -15,10 +15,12 @@ public class FeatureTarget {
     private Long id;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "feature_flag_id", nullable = false)
     private FeatureFlag featureFlag;
 
-    @Column(nullable = false)
+    @Column(name = "user_id", nullable = false)
     private String userId;
+
 
     public Long getId() { return id; }
     public FeatureFlag getFeatureFlag() { return featureFlag; }
