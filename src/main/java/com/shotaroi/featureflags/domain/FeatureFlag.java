@@ -1,34 +1,35 @@
 package com.shotaroi.featureflags.domain;
 
 import jakarta.persistence.*;
-
 import java.time.Instant;
 
 @Entity
-@Table(name = "feature_flags",
+@Table(
+        name = "feature_flags",
         uniqueConstraints = @UniqueConstraint(
-                name = "uk_feature_key",
-                columnNames = "featureKey"
-        ))
+            name = "uk_feature_key",
+            columnNames = "feature_key"
+        )
+)
 public class FeatureFlag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "feature_key", nullable = false)
     private String featureKey;
 
     @Column(nullable = false)
     private boolean enabled;
 
-    @Column(nullable = false)
+    @Column(name = "rollout_percent", nullable = false)
     private int rolloutPercent;
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     @PrePersist
@@ -44,13 +45,17 @@ public class FeatureFlag {
     }
 
     public Long getId() { return id; }
-
     public void setId(Long id) { this.id = id; }
 
     public String getFeatureKey() { return featureKey; }
     public void setFeatureKey(String featureKey) { this.featureKey = featureKey; }
+
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
+
     public int getRolloutPercent() { return rolloutPercent; }
     public void setRolloutPercent(int rolloutPercent) { this.rolloutPercent = rolloutPercent; }
+
+    public Instant getCreatedAt() { return createdAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
 }
