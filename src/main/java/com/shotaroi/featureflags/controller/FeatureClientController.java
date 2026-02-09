@@ -1,5 +1,6 @@
 package com.shotaroi.featureflags.controller;
 
+import com.shotaroi.featureflags.domain.Environment;
 import com.shotaroi.featureflags.service.FeatureEvaluationService;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,8 +17,9 @@ public class FeatureClientController {
     @GetMapping("/{featureKey}/evaluate")
     public FeatureEvaluationService.EvaluationResult evaluate(
             @PathVariable String featureKey,
+            @RequestParam Environment environment,
             @RequestParam(required = false) String userId
     ) {
-        return service.evaluate(featureKey, userId);
+        return service.evaluate(featureKey, environment, userId);
     }
 }

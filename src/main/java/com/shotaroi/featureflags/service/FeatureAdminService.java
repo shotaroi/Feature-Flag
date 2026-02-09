@@ -1,5 +1,6 @@
 package com.shotaroi.featureflags.service;
 
+import com.shotaroi.featureflags.domain.Environment;
 import com.shotaroi.featureflags.domain.FeatureFlag;
 import com.shotaroi.featureflags.domain.FeatureTarget;
 import com.shotaroi.featureflags.dto.AdminDtos;
@@ -23,33 +24,34 @@ public class FeatureAdminService {
     }
 
     @Transactional(readOnly = true)
-    public FeatureFlag get(String featureKey) {
-        return flagRepo.findByFeatureKey(featureKey)
-                .orElseThrow(() -> new IllegalArgumentException("Not found: " + featureKey));
+    public FeatureFlag get(String featureKey, Environment environment) {
+        return flagRepo.findByFeatureKeyAndEnvironment(featureKey, environment)
+                .orElseThrow(() -> new IllegalArgumentException("Not found: " + featureKey + " in " + environment));
     }
 
     @Transactional(readOnly = true)
-    public List<FeatureFlag> list() {
-        return flagRepo.findAll();
+    public List<FeatureFlag> list(Environment environment) {
+        return flagRepo.findAllByEnvironment(environment);
     }
 
     @Transactional
     public FeatureFlag create(AdminDtos.CreateFlagRequest req) {
-        if (flagRepo.findByFeatureKey(req.featureKey()).isPresent()) {
-            throw new IllegalArgumentException("Feature already exists: " + req.featureKey());
+        if (flagRepo.findByFeatureKeyAndEnvironment(req.featureKey(), req.environment()).isPresent()) {
+            throw new IllegalArgumentException("Feature already exists: " + req.featureKey() + " in " + req.environment());
         }
 
         FeatureFlag flag = new FeatureFlag();
         flag.setFeatureKey(req.featureKey());
+        flag.setEnvironment(req.environment());
         flag.setEnabled(req.enabled());
         flag.setRolloutPercent(req.rolloutPercent());
         return flagRepo.save(flag);
     }
 
     @Transactional
-    public FeatureFlag update(String featureKey, AdminDtos.UpdateFlagRequest req) {
-        FeatureFlag flag = flagRepo.findByFeatureKey(featureKey)
-                .orElseThrow(() -> new IllegalArgumentException("Not found: " + featureKey));
+    public FeatureFlag update(String featureKey, Environment environment, AdminDtos.UpdateFlagRequest req) {
+        FeatureFlag flag = flagRepo.findByFeatureKeyAndEnvironment(featureKey, environment)
+                .orElseThrow(() -> new IllegalArgumentException("Not found: " + featureKey + " in " + environment));
 
         flag.setEnabled(req.enabled());
         flag.setRolloutPercent(req.rolloutPercent());
@@ -57,9 +59,9 @@ public class FeatureAdminService {
     }
 
     @Transactional
-    public void addTarget(String featureKey, String userId) {
-        FeatureFlag flag = flagRepo.findByFeatureKey(featureKey)
-                .orElseThrow(() -> new IllegalArgumentException("Not found: " + featureKey));
+    public void addTarget(String featureKey, Environment environment, String userId) {
+        FeatureFlag flag = flagRepo.findByFeatureKeyAndEnvironment(featureKey, environment)
+                .orElseThrow(() -> new IllegalArgumentException("Not found: " + featureKey + " in " + environment));
 
         FeatureTarget target = new FeatureTarget();
         target.setFeatureFlag(flag);
@@ -68,15 +70,14 @@ public class FeatureAdminService {
         try {
             targetRepo.save(target);
         } catch (DataIntegrityViolationException e) {
-            // Most likely your unique constraint (featureFlag_id + userId) was violated
             throw new IllegalArgumentException("Target already exists for user: " + userId);
         }
     }
 
     @Transactional
-    public void removeTarget(String featureKey, String userId) {
-        var flag = flagRepo.findByFeatureKey(featureKey)
-                .orElseThrow(() -> new IllegalArgumentException("Not found: " + featureKey));
+    public void removeTarget(String featureKey, Environment environment, String userId) {
+        FeatureFlag flag = flagRepo.findByFeatureKeyAndEnvironment(featureKey, environment)
+                .orElseThrow(() -> new IllegalArgumentException("Not found: " + featureKey + " in " + environment));
 
         targetRepo.deleteByFeatureFlag_IdAndUserId(flag.getId(), userId);
     }

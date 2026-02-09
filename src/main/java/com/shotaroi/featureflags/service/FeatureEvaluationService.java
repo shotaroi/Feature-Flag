@@ -1,5 +1,6 @@
 package com.shotaroi.featureflags.service;
 
+import com.shotaroi.featureflags.domain.Environment;
 import com.shotaroi.featureflags.domain.FeatureFlag;
 import com.shotaroi.featureflags.repository.FeatureFlagRepository;
 import com.shotaroi.featureflags.repository.FeatureTargetRepository;
@@ -22,8 +23,8 @@ public class FeatureEvaluationService {
         this.targetRepo = targetRepo;
     }
 
-    public EvaluationResult evaluate(String featureKey, String userId) {
-        FeatureFlag flag = flagRepo.findByFeatureKey(featureKey).orElse(null);
+    public EvaluationResult evaluate(String featureKey, Environment environment, String userId) {
+        FeatureFlag flag = flagRepo.findByFeatureKeyAndEnvironment(featureKey, environment).orElse(null);
 
         if (flag == null) {
             return EvaluationResult.off("FLAG_NOT_FOUND");

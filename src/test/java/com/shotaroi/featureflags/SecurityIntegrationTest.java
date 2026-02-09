@@ -34,6 +34,7 @@ class SecurityIntegrationTest {
     @Test
     void publicFlagsEndpoint_isAccessibleWithoutAuth() throws Exception {
         mvc.perform(get("/api/flags/some_feature/evaluate")
+                        .param("environment", "PROD")
                         .param("userId", "alice"))
                 .andExpect(status().isOk());
     }
@@ -54,6 +55,7 @@ class SecurityIntegrationTest {
     @Test
     void adminEndpoints_allowAdmin() throws Exception {
         mvc.perform(get("/api/admin/flags")
+                        .param("environment", "DEV")
                 .with(user("admin").roles("ADMIN")))
                 .andExpect(status().isOk()); // 200
     }
@@ -66,6 +68,7 @@ class SecurityIntegrationTest {
                         .content("""
                                 {
                                   "featureKey": "new_dashboard",
+                                  "environment": "DEV",
                                   "enabled": true,
                                   "rolloutPercent": 20
                                 }

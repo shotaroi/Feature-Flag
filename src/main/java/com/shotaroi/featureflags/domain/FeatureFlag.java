@@ -7,8 +7,8 @@ import java.time.Instant;
 @Table(
         name = "feature_flags",
         uniqueConstraints = @UniqueConstraint(
-            name = "uk_feature_key",
-            columnNames = "feature_key"
+            name = "uk_feature_key_environment",
+            columnNames = {"feature_key", "environment"}
         )
 )
 public class FeatureFlag {
@@ -19,6 +19,10 @@ public class FeatureFlag {
 
     @Column(name = "feature_key", nullable = false)
     private String featureKey;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "environment", nullable = false, length = 50)
+    private Environment environment;
 
     @Column(nullable = false)
     private boolean enabled;
@@ -49,6 +53,9 @@ public class FeatureFlag {
 
     public String getFeatureKey() { return featureKey; }
     public void setFeatureKey(String featureKey) { this.featureKey = featureKey; }
+
+    public Environment getEnvironment() { return environment; }
+    public void setEnvironment(Environment environment) { this.environment = environment; }
 
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
