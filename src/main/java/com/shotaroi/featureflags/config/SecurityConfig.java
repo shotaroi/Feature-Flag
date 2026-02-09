@@ -31,7 +31,6 @@ public class SecurityConfig {
 
                         // H2 console (optional dev convenience)
                         .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/h2-console/**").permitAll()
 
                         // Admin endpoints require role ADMIN
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
