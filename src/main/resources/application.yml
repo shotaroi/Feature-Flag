@@ -6,10 +6,11 @@ spring:
     password:
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         format_sql: true
+    defer-datasource-initialization: true
   h2:
     console:
       enabled: true
@@ -19,6 +20,10 @@ spring:
       name: admin
       password: "{noop}admin123"
       roles: ADMIN
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
 
 server:
   port: 8080
