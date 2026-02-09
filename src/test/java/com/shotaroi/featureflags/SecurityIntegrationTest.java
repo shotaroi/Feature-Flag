@@ -11,9 +11,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 
 @SpringBootTest
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = true)
 @TestPropertySource(properties = {
         // Use H2 in-memory for tests (independent of your normal app.yml)
         "spring.datasource.url=jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1",
@@ -44,23 +45,23 @@ class SecurityIntegrationTest {
     }
 
     @Test
-    @WithMockUser(username = "user", roles = {"USER"})
     void adminEndpoints_forbidNonAdmin() throws Exception {
-        mvc.perform(get("/api/admin/flags"))
+        mvc.perform(get("/api/admin/flags")
+                .with(user("user").roles("USER")))
                 .andExpect(status().isForbidden()); // 403
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void adminEndpoints_allowAdmin() throws Exception {
-        mvc.perform(get("/api/admin/flags"))
+        mvc.perform(get("/api/admin/flags")
+                .with(user("admin").roles("ADMIN")))
                 .andExpect(status().isOk()); // 200
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
     void adminCanCreateFeatureFlag() throws Exception {
         mvc.perform(post("/api/admin/flags")
+                        .with(user("admin").roles("ADMIN"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
