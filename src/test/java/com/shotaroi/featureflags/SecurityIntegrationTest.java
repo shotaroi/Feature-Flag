@@ -48,6 +48,7 @@ class SecurityIntegrationTest {
     @Test
     void adminEndpoints_forbidNonAdmin() throws Exception {
         mvc.perform(get("/api/admin/flags")
+                        .param("environment", "DEV")
                 .with(user("user").roles("USER")))
                 .andExpect(status().isForbidden()); // 403
     }
@@ -77,5 +78,31 @@ class SecurityIntegrationTest {
                 .andExpect(jsonPath("$.featureKey").value("new_dashboard"))
                 .andExpect(jsonPath("$.enabled").value(true))
                 .andExpect(jsonPath("$.rolloutPercent").value(20));
+    }
+
+    @Test
+    void adminCanFetchFlagHistory() throws Exception {
+        // Create a flag first (creates one audit log entry)
+        mvc.perform(post("/api/admin/flags")
+                        .with(user("admin").roles("ADMIN"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "featureKey": "audit_test",
+                                  "environment": "DEV",
+                                  "enabled": true,
+                                  "rolloutPercent": 0
+                                }
+                                """))
+                .andExpect(status().isCreated());
+
+        mvc.perform(get("/api/admin/flags/audit_test/history")
+                        .param("environment", "DEV")
+                        .with(user("admin").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].featureKey").value("audit_test"))
+                .andExpect(jsonPath("$[0].changeType").value("FLAG_CREATED"))
+                .andExpect(jsonPath("$[0].changedBy").value("admin"));
     }
 }
