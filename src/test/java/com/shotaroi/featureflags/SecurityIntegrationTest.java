@@ -1,5 +1,7 @@
 package com.shotaroi.featureflags;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -32,8 +34,26 @@ class SecurityIntegrationTest {
     MockMvc mvc;
 
     @Test
-    void publicFlagsEndpoint_isAccessibleWithoutAuth() throws Exception {
+    void evaluateEndpoint_requiresApiKey() throws Exception {
         mvc.perform(get("/api/flags/some_feature/evaluate")
+                        .param("environment", "PROD")
+                        .param("userId", "alice"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void evaluateEndpoint_worksWithValidApiKey() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        String createBody = mvc.perform(post("/api/admin/api-keys")
+                        .with(user("admin").roles("ADMIN"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"test-key\",\"environment\":\"PROD\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String rawKey = mapper.readTree(createBody).get("rawKey").asText();
+
+        mvc.perform(get("/api/flags/some_feature/evaluate")
+                        .header("X-API-Key", rawKey)
                         .param("environment", "PROD")
                         .param("userId", "alice"))
                 .andExpect(status().isOk());

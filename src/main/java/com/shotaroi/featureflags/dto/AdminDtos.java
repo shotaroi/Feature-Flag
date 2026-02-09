@@ -18,4 +18,9 @@ public class AdminDtos {
     ) {}
 
     public record AddTargetRequest(@NotBlank String userId) {}
+
+    public record CreateApiKeyRequest(
+            @NotBlank String name,
+            Environment environment
+    ) {}
 }
