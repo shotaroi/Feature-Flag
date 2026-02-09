@@ -96,6 +96,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Spring Boot 4: explicit H2 console support -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-h2console</artifactId>
+        </dependency>
+
 <!--        spring Boot 4 does not ship a spring-boot-starter-flyway starter (at least not in the standard starter set), so Maven can’t find it.-->
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.boot</groupId>-->
