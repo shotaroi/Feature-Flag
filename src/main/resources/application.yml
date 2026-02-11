@@ -31,6 +31,19 @@ spring:
 server:
   port: 8080
 
+# Actuator: health (for load balancers/k8s), metrics (for monitoring)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  metrics:
+    tags:
+      application: feature-flags
+
 logging:
   level:
     org.flywaydb: DEBUG

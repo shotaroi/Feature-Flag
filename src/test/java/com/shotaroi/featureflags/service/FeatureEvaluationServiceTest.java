@@ -4,6 +4,7 @@ import com.shotaroi.featureflags.domain.Environment;
 import com.shotaroi.featureflags.domain.FeatureFlag;
 import com.shotaroi.featureflags.repository.FeatureFlagRepository;
 import com.shotaroi.featureflags.repository.FeatureTargetRepository;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +23,7 @@ class FeatureEvaluationServiceTest {
     void setUp() {
         flagRepo = mock(FeatureFlagRepository.class);
         targetRepo = mock(FeatureTargetRepository.class);
-        service = new FeatureEvaluationService(flagRepo, targetRepo);
+        service = new FeatureEvaluationService(flagRepo, targetRepo, new SimpleMeterRegistry());
     }
 
     @Test

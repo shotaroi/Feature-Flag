@@ -21,11 +21,13 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        // Evaluation endpoint requires valid X-API-Key (checked by ApiKeyAuthenticationFilter)
                         .requestMatchers("/api/flags/**").authenticated()
-
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Health: public for load balancers / k8s probes
+                        .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                        // Metrics and Prometheus: admin only (or use same as health for simple setups)
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
 
