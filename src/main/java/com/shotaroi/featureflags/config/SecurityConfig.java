@@ -26,8 +26,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // Health: public for load balancers / k8s probes
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
-                        // Metrics and Prometheus: admin only (or use same as health for simple setups)
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
+                        // OpenAPI / Swagger UI: admin only
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
 

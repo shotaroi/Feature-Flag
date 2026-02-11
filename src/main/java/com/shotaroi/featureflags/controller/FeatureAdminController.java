@@ -12,8 +12,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/admin/flags")
+@Tag(name = "Admin – Feature flags", description = "CRUD and targets. Requires HTTP Basic (admin).")
 public class FeatureAdminController {
     private final FeatureAdminService adminService;
 
@@ -21,6 +25,7 @@ public class FeatureAdminController {
         this.adminService = adminService;
     }
 
+    @Operation(summary = "Get a flag by key and environment")
     @GetMapping("/{featureKey}")
     public FeatureFlag get(
             @PathVariable String featureKey,
@@ -29,11 +34,13 @@ public class FeatureAdminController {
         return adminService.get(featureKey, environment);
     }
 
+    @Operation(summary = "List all flags for an environment")
     @GetMapping
     public List<FeatureFlag> list(@RequestParam Environment environment) {
         return adminService.list(environment);
     }
 
+    @Operation(summary = "Create a new flag")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public FeatureFlag create(
@@ -43,6 +50,7 @@ public class FeatureAdminController {
         return adminService.create(req, auth != null ? auth.getName() : "anonymous");
     }
 
+    @Operation(summary = "Update a flag (enabled, rolloutPercent)")
     @PatchMapping("/{featureKey}")
     public FeatureFlag update(
             @PathVariable String featureKey,
@@ -53,6 +61,7 @@ public class FeatureAdminController {
         return adminService.update(featureKey, environment, req, auth != null ? auth.getName() : "anonymous");
     }
 
+    @Operation(summary = "Add a user to the flag allowlist")
     @PostMapping("/{featureKey}/targets")
     @ResponseStatus(HttpStatus.CREATED)
     public void addTarget(
@@ -64,6 +73,7 @@ public class FeatureAdminController {
         adminService.addTarget(featureKey, environment, req.userId(), auth != null ? auth.getName() : "anonymous");
     }
 
+    @Operation(summary = "Remove a user from the flag allowlist")
     @DeleteMapping("/{featureKey}/targets/{userId}")
     public void removeTarget(
             @PathVariable String featureKey,
@@ -74,6 +84,7 @@ public class FeatureAdminController {
         adminService.removeTarget(featureKey, environment, userId, auth != null ? auth.getName() : "anonymous");
     }
 
+    @Operation(summary = "Get change history for a flag")
     @GetMapping("/{featureKey}/history")
     public List<FlagChangeLog> history(
             @PathVariable String featureKey,
