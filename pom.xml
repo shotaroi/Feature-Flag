@@ -102,6 +102,16 @@
             <artifactId>spring-boot-h2console</artifactId>
         </dependency>
 
+        <!-- Actuator: health, metrics (observability) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
 <!--        spring Boot 4 does not ship a spring-boot-starter-flyway starter (at least not in the standard starter set), so Maven can’t find it.-->
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.boot</groupId>-->
